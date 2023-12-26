@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "YoutubeUploadSelenium", "YoutubeUploadSelenium\YoutubeUploadSelenium.shproj", "{16118380-97ED-43BE-8AF1-F621B91E4B19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TmpConsole", "TmpConsole\TmpConsole.csproj", "{22CC7E6C-9378-469F-BBBB-76D4862BC8FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22CC7E6C-9378-469F-BBBB-76D4862BC8FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22CC7E6C-9378-469F-BBBB-76D4862BC8FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22CC7E6C-9378-469F-BBBB-76D4862BC8FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22CC7E6C-9378-469F-BBBB-76D4862BC8FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B81F020F-DABC-4EFA-9B6C-47711B3D788D}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		YoutubeUploadSelenium\YoutubeUploadSelenium.projitems*{16118380-97ed-43be-8af1-f621b91e4b19}*SharedItemsImports = 13
+		YoutubeUploadSelenium\YoutubeUploadSelenium.projitems*{22cc7e6c-9378-469f-bbbb-76d4862bc8fa}*SharedItemsImports = 5
+	EndGlobalSection
+EndGlobal
