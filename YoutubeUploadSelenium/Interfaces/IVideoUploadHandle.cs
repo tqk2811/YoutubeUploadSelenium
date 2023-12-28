@@ -4,5 +4,6 @@
     {
         void WriteLog(string log);
         void UploadProgressCallback(int percent);
+        string GetDateFormat();
     }
 }

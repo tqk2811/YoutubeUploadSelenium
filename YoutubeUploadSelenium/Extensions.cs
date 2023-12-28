@@ -229,7 +229,7 @@ namespace YoutubeUploadSelenium
                         .FirstAsync();
                     webDriver.JsClick(ele);
                     ele.Clear();
-                    string day = videoUploadInfo.Schedule.Value.ToString("dd/MM/yyyy");
+                    string day = videoUploadInfo.Schedule.Value.ToString(videoUploadHandle.GetDateFormat());
                     ele.SendKeys(day + "\r\n");
                     videoUploadHandle?.WriteLog($"Set SCHEDULE: Day:{day}");
 
