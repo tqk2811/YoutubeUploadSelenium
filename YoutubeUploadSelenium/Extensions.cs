@@ -240,6 +240,7 @@ namespace YoutubeUploadSelenium
                         .StartAsync()
                         .FirstAsync();
                     string time = videoUploadInfo.Schedule.Value.ToString("HH:mm");
+                    ele.Click();
                     ele.Clear();
                     ele.SendKeys(time);
                 }
