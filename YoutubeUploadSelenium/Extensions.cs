@@ -179,13 +179,32 @@ namespace YoutubeUploadSelenium
 
             if (!videoUploadInfo.IsDraft)
             {
-                //open
+                //open tab REVIEW
                 webDriver.JsClick(await waiter
                     .WaitUntilElements("button[id='step-badge-3'][test-id='REVIEW']")
                     .Until().AnyElementsClickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync());
+
+                videoUploadHandle?.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
+                webDriver.JsClick(await waiter
+                    .WaitUntilElements(By.Name(videoUploadInfo.VideoPrivacyStatus.ToString()))
+                    .Until().AllElementsClickable()
+                    .WithThrow()
+                    .StartAsync()
+                    .FirstAsync());
+
+                if (videoUploadInfo.VideoPrivacyStatus == VideoPrivacyStatus.PUBLIC && videoUploadInfo.Premiere)
+                {
+                    videoUploadHandle?.WriteLog($"Set premiere");
+                    webDriver.JsClick(await waiter
+                        .WaitUntilElements("#enable-premiere-checkbox")
+                        .Until().AllElementsClickable()
+                        .WithThrow()
+                        .StartAsync()
+                        .FirstAsync());
+                }
 
                 //Schedule
                 if (videoUploadInfo.Schedule != null && videoUploadInfo.Schedule > DateTime.Now.AddMinutes(16))
@@ -223,28 +242,6 @@ namespace YoutubeUploadSelenium
                     string time = videoUploadInfo.Schedule.Value.ToString("HH:mm");
                     ele.Clear();
                     ele.SendKeys(time);
-                }
-                //Privacy
-                else
-                {
-                    videoUploadHandle?.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
-                    webDriver.JsClick(await waiter
-                        .WaitUntilElements(By.Name(videoUploadInfo.VideoPrivacyStatus.ToString()))
-                        .Until().AllElementsClickable()
-                        .WithThrow()
-                        .StartAsync()
-                        .FirstAsync());
-
-                    if (videoUploadInfo.VideoPrivacyStatus == VideoPrivacyStatus.PUBLIC && videoUploadInfo.Premiere)
-                    {
-                        videoUploadHandle?.WriteLog($"Set premiere");
-                        webDriver.JsClick(await waiter
-                            .WaitUntilElements("#enable-premiere-checkbox")
-                            .Until().AllElementsClickable()
-                            .WithThrow()
-                            .StartAsync()
-                            .FirstAsync());
-                    }
                 }
             }
 
