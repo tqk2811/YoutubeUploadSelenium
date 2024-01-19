@@ -23,15 +23,15 @@ namespace YoutubeUploadSelenium
             IVideoUploadHandle videoUploadHandle,
             CancellationToken cancellationToken = default)
         {
-            var waiter = new WaitHelper(webDriver, cancellationToken);
-            waiter.Do(() => webDriver.Check());
+            if (videoUploadInfo is null) throw new ArgumentNullException(nameof(videoUploadInfo));
+            if (videoUploadHandle is null) throw new ArgumentNullException(nameof(videoUploadHandle));
 
-            if (string.IsNullOrEmpty(videoUploadInfo?.VideoPath)) throw new ArgumentNullException(nameof(videoUploadInfo));
-            if (!File.Exists(videoUploadInfo.VideoPath)) throw new FileNotFoundException(videoUploadInfo.VideoPath);
+            var waiter = new WaitHelper(webDriver, cancellationToken);//throw if webDriver null
+            waiter.Do(() => webDriver.Check());
 
             webDriver.Navigate().GoToUrl("https://www.youtube.com/upload");
 
-            videoUploadHandle?.WriteLog($"Upload {videoUploadInfo.VideoPath}");
+            videoUploadHandle.WriteLog($"Upload {videoUploadInfo.VideoPath}");
             await waiter
                 .WaitUntilElements(By.Name("Filedata"))
                 .Until().ElementsExists()
@@ -48,7 +48,7 @@ namespace YoutubeUploadSelenium
             if (!string.IsNullOrEmpty(videoUploadInfo.Title))
             {
                 if (videoUploadInfo.Title.Length > 100) throw new Exception("Tiêu đề dài hơn 100 ký tự");
-                videoUploadHandle?.WriteLog($"Set title {videoUploadInfo.Title}");
+                videoUploadHandle.WriteLog($"Set title {videoUploadInfo.Title}");
                 var ele = await waiter
                     .WaitUntilElements("ytcp-social-suggestions-textbox[id='title-textarea'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div[id='textbox']")
                     .Until().AnyElementsClickable()
@@ -64,7 +64,7 @@ namespace YoutubeUploadSelenium
 
             if (!string.IsNullOrEmpty(videoUploadInfo.Description))
             {
-                videoUploadHandle?.WriteLog($"Set description {videoUploadInfo.Description}");
+                videoUploadHandle.WriteLog($"Set description {videoUploadInfo.Description}");
                 var ele = await waiter
                     .WaitUntilElements("div[id='description-container'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div[id='textbox']")
                     .Until().AnyElementsClickable()
@@ -80,10 +80,10 @@ namespace YoutubeUploadSelenium
 
             if (File.Exists(videoUploadInfo.ThumbPath))
             {
-                videoUploadHandle?.WriteLog($"Set Thumb Image {videoUploadInfo.ThumbPath}");
+                videoUploadHandle.WriteLog($"Set Thumb Image {videoUploadInfo.ThumbPath}");
                 if (webDriver.FindElements(By.CssSelector("ytcp-thumbnails-compact-editor-uploader[feature-disabled]")).Count > 0)
                 {
-                    videoUploadHandle?.WriteLog($"Thumbnails feature-disabled on this account");
+                    videoUploadHandle.WriteLog($"Thumbnails feature-disabled on this account");
                 }
                 else
                 {
@@ -100,7 +100,7 @@ namespace YoutubeUploadSelenium
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (videoUploadInfo?.PlayList != null && videoUploadInfo.PlayList.Count > 0)
+            if (videoUploadInfo.PlayList != null && videoUploadInfo.PlayList.Count > 0)
             {
                 webDriver.JsClick(await waiter
                     .WaitUntilElements("ytcp-text-dropdown-trigger[class*='ytcp-video-metadata-playlists']")
@@ -123,7 +123,7 @@ namespace YoutubeUploadSelenium
                     string PlayListName = ele.Text.Trim();
                     if (videoUploadInfo.PlayList.Any(x => x.Equals(PlayListName)))
                     {
-                        videoUploadHandle?.WriteLog($"Set playlist {PlayListName}");
+                        videoUploadHandle.WriteLog($"Set playlist {PlayListName}");
                         var ele2 = ele.FindElements(By.CssSelector("ytcp-checkbox-lit")).FirstOrDefault();
                         if (ele2 != null)
                             webDriver.JsClick(ele2);
@@ -140,7 +140,7 @@ namespace YoutubeUploadSelenium
 
             if (!string.IsNullOrWhiteSpace(videoUploadInfo.Tags))
             {
-                videoUploadHandle?.WriteLog($"Set tags {videoUploadInfo.Tags}");
+                videoUploadHandle.WriteLog($"Set tags {videoUploadInfo.Tags}");
                 webDriver.JsClick(await waiter
                     .WaitUntilElements("ytcp-button[id='toggle-button'][class*='ytcp-video-metadata-editor']")
                     .Until().ElementsExists()
@@ -158,7 +158,7 @@ namespace YoutubeUploadSelenium
 
             //IsMakeForKid
             {
-                videoUploadHandle?.WriteLog($"Set KIDS: {videoUploadInfo.IsMakeForKid}");
+                videoUploadHandle.WriteLog($"Set KIDS: {videoUploadInfo.IsMakeForKid}");
                 //old ver MADE_FOR_KIDS
                 //new ver VIDEO_MADE_FOR_KIDS_MFK
                 if (videoUploadInfo.IsMakeForKid)
@@ -187,7 +187,7 @@ namespace YoutubeUploadSelenium
                     .StartAsync()
                     .FirstAsync());
 
-                videoUploadHandle?.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
+                videoUploadHandle.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
                 webDriver.JsClick(await waiter
                     .WaitUntilElements(By.Name(videoUploadInfo.VideoPrivacyStatus.ToString()))
                     .Until().AllElementsClickable()
@@ -197,7 +197,7 @@ namespace YoutubeUploadSelenium
 
                 if (videoUploadInfo.VideoPrivacyStatus == VideoPrivacyStatus.PUBLIC && videoUploadInfo.Premiere)
                 {
-                    videoUploadHandle?.WriteLog($"Set premiere");
+                    videoUploadHandle.WriteLog($"Set premiere");
                     webDriver.JsClick(await waiter
                         .WaitUntilElements("#enable-premiere-checkbox")
                         .Until().AllElementsClickable()
@@ -231,7 +231,7 @@ namespace YoutubeUploadSelenium
                     ele.Clear();
                     string day = videoUploadInfo.Schedule.Value.ToString(videoUploadHandle.GetDateFormat());
                     ele.SendKeys(day + "\r\n");
-                    videoUploadHandle?.WriteLog($"Set SCHEDULE: Day:{day}");
+                    videoUploadHandle.WriteLog($"Set SCHEDULE: Day:{day}");
 
                     ele = await waiter
                         .WaitUntilElements("ytcp-form-input-container#time-of-day-container tp-yt-paper-input.ytcp-datetime-picker iron-input>input")
@@ -258,7 +258,7 @@ namespace YoutubeUploadSelenium
                     .StartAsync()
                     .FirstAsync();
             string UrlResult = ele_.Text;
-            videoUploadHandle?.WriteLog($"Video url: {UrlResult}");
+            videoUploadHandle.WriteLog($"Video url: {UrlResult}");
             webDriver.JsClick(await waiter
                 .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-uploads-dialog'] ytcp-button[id='done-button']")
                 .Until().AnyElementsClickable()
@@ -267,7 +267,7 @@ namespace YoutubeUploadSelenium
                 .FirstAsync());
 
             await Task.Delay(2000, cancellationToken);
-            videoUploadHandle?.WriteLog($"Upload Hoàn tất");
+            videoUploadHandle.WriteLog($"Upload Hoàn tất");
 
             return UrlResult;
         }
@@ -288,7 +288,7 @@ namespace YoutubeUploadSelenium
 
             while (webDriver.FindElements(By.CssSelector(".ytcp-uploads-dialog ytcp-video-upload-progress[uploading]")).Count > 0)
             {
-                string progress = webDriver.FindElements(By.CssSelector(".ytcp-uploads-dialog span.ytcp-video-upload-progress")).FirstOrDefault()?.Text?.Trim();
+                string? progress = webDriver.FindElements(By.CssSelector(".ytcp-uploads-dialog span.ytcp-video-upload-progress")).FirstOrDefault()?.Text?.Trim();
                 if (!string.IsNullOrWhiteSpace(progress))
                 {
                     videoUploadHandle?.WriteLog($"Upload: {progress}");
