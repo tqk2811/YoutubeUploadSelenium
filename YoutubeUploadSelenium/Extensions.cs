@@ -259,12 +259,16 @@ namespace YoutubeUploadSelenium
                     .FirstAsync();
             string UrlResult = ele_.Text;
             videoUploadHandle.WriteLog($"Video url: {UrlResult}");
-            webDriver.JsClick(await waiter
-                .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-uploads-dialog'] ytcp-button[id='done-button']")
-                .Until().AnyElementsClickable()
-                .WithThrow()
-                .StartAsync()
-                .FirstAsync());
+
+            if(!videoUploadInfo.IsDraft)
+            {
+                webDriver.JsClick(await waiter
+                    .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-uploads-dialog'] ytcp-button[id='done-button']")
+                    .Until().AnyElementsClickable()
+                    .WithThrow()
+                    .StartAsync()
+                    .FirstAsync());
+            }            
 
             await Task.Delay(2000, cancellationToken);
             videoUploadHandle.WriteLog($"Upload Hoàn tất");
