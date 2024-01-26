@@ -187,28 +187,12 @@ namespace YoutubeUploadSelenium
                     .StartAsync()
                     .FirstAsync());
 
-                videoUploadHandle.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
-                webDriver.JsClick(await waiter
-                    .WaitUntilElements(By.Name(videoUploadInfo.VideoPrivacyStatus.ToString()))
-                    .Until().AllElementsClickable()
-                    .WithThrow()
-                    .StartAsync()
-                    .FirstAsync());
-
-                if (videoUploadInfo.VideoPrivacyStatus == VideoPrivacyStatus.PUBLIC && videoUploadInfo.Premiere)
-                {
-                    videoUploadHandle.WriteLog($"Set premiere");
-                    webDriver.JsClick(await waiter
-                        .WaitUntilElements("#enable-premiere-checkbox")
-                        .Until().AllElementsClickable()
-                        .WithThrow()
-                        .StartAsync()
-                        .FirstAsync());
-                }
-
                 //Schedule
-                if (videoUploadInfo.Schedule != null && videoUploadInfo.Schedule > DateTime.Now.AddMinutes(16))
+                if (videoUploadInfo.Schedule is not null)
                 {
+                    if (videoUploadInfo.Schedule < DateTime.Now.AddMinutes(15))
+                        throw new InvalidOperationException($"Invalid Schedule Time");
+
                     webDriver.JsClick(await waiter
                         .WaitUntilElements("div#second-container div.early-access-header>ytcp-icon-button:not(hidden)")
                         .Until().AllElementsClickable()
@@ -243,6 +227,38 @@ namespace YoutubeUploadSelenium
                     ele.Click();
                     ele.Clear();
                     ele.SendKeys(time);
+
+                    if (videoUploadInfo.Premiere)
+                    {
+                        videoUploadHandle.WriteLog($"Set schedule-premiere");
+                        webDriver.JsClick(await waiter
+                            .WaitUntilElements("#schedule-type-checkbox")
+                            .Until().AllElementsClickable()
+                            .WithThrow()
+                            .StartAsync()
+                            .FirstAsync());
+                    }
+                }
+                else
+                {
+                    videoUploadHandle.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
+                    webDriver.JsClick(await waiter
+                        .WaitUntilElements(By.Name(videoUploadInfo.VideoPrivacyStatus.ToString()))
+                        .Until().AllElementsClickable()
+                        .WithThrow()
+                        .StartAsync()
+                        .FirstAsync());
+
+                    if (videoUploadInfo.VideoPrivacyStatus == VideoPrivacyStatus.PUBLIC && videoUploadInfo.Premiere)
+                    {
+                        videoUploadHandle.WriteLog($"Set premiere");
+                        webDriver.JsClick(await waiter
+                            .WaitUntilElements("#enable-premiere-checkbox")
+                            .Until().AllElementsClickable()
+                            .WithThrow()
+                            .StartAsync()
+                            .FirstAsync());
+                    }
                 }
             }
 
