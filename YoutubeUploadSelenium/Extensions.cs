@@ -177,6 +177,16 @@ namespace YoutubeUploadSelenium
                         .FirstAsync());
             }
 
+            //get url result
+            var ele_ = await waiter
+                    .WaitUntilElements(".video-url-fadeable")
+                    .Until().AllElementsClickable()
+                    .WithThrow()
+                    .WithTimeout(60000)
+                    .StartAsync()
+                    .FirstAsync();
+            string UrlResult = ele_.Text;
+
             if (!videoUploadInfo.IsDraft)
             {
                 //open tab REVIEW
@@ -265,15 +275,6 @@ namespace YoutubeUploadSelenium
             //wait upload done
             await task_waitUploadDone;
 
-            //get url result
-            var ele_ = await waiter
-                    .WaitUntilElements(".video-url-fadeable")
-                    .Until().AllElementsClickable()
-                    .WithThrow()
-                    .WithTimeout(60000)
-                    .StartAsync()
-                    .FirstAsync();
-            string UrlResult = ele_.Text;
             videoUploadHandle.WriteLog($"Video url: {UrlResult}");
 
             if(!videoUploadInfo.IsDraft)
