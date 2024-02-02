@@ -278,7 +278,9 @@ namespace YoutubeUploadSelenium
 
             videoUploadHandle.WriteLog($"Video url: {UrlResult}");
 
-            if(!videoUploadInfo.IsDraft)
+            await Task.Delay(2000, cancellationToken);
+
+            if (!videoUploadInfo.IsDraft)
             {
                 webDriver.JsClick(await waiter
                     .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-uploads-dialog'] ytcp-button[id='done-button']")
