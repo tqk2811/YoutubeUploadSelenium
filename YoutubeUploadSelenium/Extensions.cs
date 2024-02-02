@@ -237,6 +237,7 @@ namespace YoutubeUploadSelenium
                     ele.Click();
                     ele.Clear();
                     ele.SendKeys(time);
+                    videoUploadHandle.WriteLog($"Set SCHEDULE: Time:{time}");
 
                     if (videoUploadInfo.Premiere)
                     {
