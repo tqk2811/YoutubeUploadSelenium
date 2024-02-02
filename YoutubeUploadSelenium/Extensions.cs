@@ -186,6 +186,18 @@ namespace YoutubeUploadSelenium
                     .StartAsync()
                     .FirstAsync();
             string UrlResult = ele_.Text;
+            while (string.IsNullOrWhiteSpace(UrlResult))
+            {
+                await Task.Delay(500, cancellationToken);
+                ele_ = await waiter
+                    .WaitUntilElements(".video-url-fadeable")
+                    .Until().AllElementsClickable()
+                    .WithThrow()
+                    .WithTimeout(60000)
+                    .StartAsync()
+                    .FirstAsync();
+                UrlResult = ele_.Text;
+            }
 
             if (!videoUploadInfo.IsDraft)
             {
