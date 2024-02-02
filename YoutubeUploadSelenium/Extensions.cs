@@ -248,7 +248,7 @@ namespace YoutubeUploadSelenium
                     string time = videoUploadInfo.Schedule.Value.ToString("HH:mm");
                     ele.Click();
                     ele.Clear();
-                    ele.SendKeys(time);
+                    ele.SendKeys(time + "\r\n");
                     videoUploadHandle.WriteLog($"Set SCHEDULE: Time:{time}");
 
                     if (videoUploadInfo.Premiere)
