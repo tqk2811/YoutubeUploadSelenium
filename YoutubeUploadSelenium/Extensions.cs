@@ -51,7 +51,7 @@ namespace YoutubeUploadSelenium
                 videoUploadHandle.WriteLog($"Set title {videoUploadInfo.Title}");
                 var ele = await waiter
                     .WaitUntilElements("ytcp-social-suggestions-textbox[id='title-textarea'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div[id='textbox']")
-                    .Until().AnyElementsClickable()
+                    .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync();
@@ -67,7 +67,7 @@ namespace YoutubeUploadSelenium
                 videoUploadHandle.WriteLog($"Set description {videoUploadInfo.Description}");
                 var ele = await waiter
                     .WaitUntilElements("div[id='description-container'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div[id='textbox']")
-                    .Until().AnyElementsClickable()
+                    .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync();
@@ -104,7 +104,7 @@ namespace YoutubeUploadSelenium
             {
                 webDriver.JsClick(await waiter
                     .WaitUntilElements("ytcp-text-dropdown-trigger[class*='ytcp-video-metadata-playlists']")
-                    .Until().AnyElementsClickable()
+                    .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync());
@@ -132,7 +132,7 @@ namespace YoutubeUploadSelenium
 
                 webDriver.JsClick(await waiter
                     .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-playlist-dialog'] ytcp-button[class*='done-button']")
-                    .Until().AnyElementsClickable()
+                    .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync());
@@ -164,14 +164,14 @@ namespace YoutubeUploadSelenium
                 if (videoUploadInfo.IsMakeForKid)
                     webDriver.JsClick(await waiter
                         .WaitUntilElements("tp-yt-paper-radio-button:is([name='MADE_FOR_KIDS'],[name='VIDEO_MADE_FOR_KIDS_MFK'])")
-                        .Until().AllElementsClickable()
+                        .Until().All().Clickable()
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync());
                 else
                     webDriver.JsClick(await waiter
                         .WaitUntilElements("tp-yt-paper-radio-button:is([name='NOT_MADE_FOR_KIDS'],[name='VIDEO_MADE_FOR_KIDS_NOT_MFK'])")
-                        .Until().AnyElementsClickable()
+                        .Until().Any().Clickable()
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync());
@@ -180,7 +180,7 @@ namespace YoutubeUploadSelenium
             //get url result
             var ele_ = await waiter
                     .WaitUntilElements(".video-url-fadeable")
-                    .Until().AllElementsClickable()
+                    .Until().All().Clickable()
                     .WithThrow()
                     .WithTimeout(60000)
                     .StartAsync()
@@ -191,7 +191,7 @@ namespace YoutubeUploadSelenium
                 await Task.Delay(500, cancellationToken);
                 ele_ = await waiter
                     .WaitUntilElements(".video-url-fadeable")
-                    .Until().AllElementsClickable()
+                    .Until().All().Clickable()
                     .WithThrow()
                     .WithTimeout(60000)
                     .StartAsync()
@@ -204,7 +204,7 @@ namespace YoutubeUploadSelenium
                 //open tab REVIEW
                 webDriver.JsClick(await waiter
                     .WaitUntilElements("button[id='step-badge-3'][test-id='REVIEW']")
-                    .Until().AnyElementsClickable()
+                    .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync());
@@ -217,19 +217,19 @@ namespace YoutubeUploadSelenium
 
                     webDriver.JsClick(await waiter
                         .WaitUntilElements("div#second-container div.early-access-header>ytcp-icon-button:not(hidden)")
-                        .Until().AllElementsClickable()
+                        .Until().All().Clickable()
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync());
                     webDriver.JsClick(await waiter
                         .WaitUntilElements("ytcp-text-dropdown-trigger[id='datepicker-trigger']")
-                        .Until().AnyElementsClickable()
+                        .Until().Any().Clickable()
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync());
                     var ele = await waiter
                         .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-date-picker'] input[class*='tp-yt-paper-input']")
-                        .Until().AnyElementsClickable()
+                        .Until().Any().Clickable()
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync();
@@ -241,7 +241,7 @@ namespace YoutubeUploadSelenium
 
                     ele = await waiter
                         .WaitUntilElements("ytcp-form-input-container#time-of-day-container tp-yt-paper-input.ytcp-datetime-picker iron-input>input")
-                        .Until().AnyElementsClickable()
+                        .Until().Any().Clickable()
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync();
@@ -256,7 +256,7 @@ namespace YoutubeUploadSelenium
                         videoUploadHandle.WriteLog($"Set schedule-premiere");
                         webDriver.JsClick(await waiter
                             .WaitUntilElements("#schedule-type-checkbox")
-                            .Until().AllElementsClickable()
+                            .Until().All().Clickable()
                             .WithThrow()
                             .StartAsync()
                             .FirstAsync());
@@ -267,7 +267,7 @@ namespace YoutubeUploadSelenium
                     videoUploadHandle.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
                     webDriver.JsClick(await waiter
                         .WaitUntilElements(By.Name(videoUploadInfo.VideoPrivacyStatus.ToString()))
-                        .Until().AllElementsClickable()
+                        .Until().All().Clickable()
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync());
@@ -277,7 +277,7 @@ namespace YoutubeUploadSelenium
                         videoUploadHandle.WriteLog($"Set premiere");
                         webDriver.JsClick(await waiter
                             .WaitUntilElements("#enable-premiere-checkbox")
-                            .Until().AllElementsClickable()
+                            .Until().All().Clickable()
                             .WithThrow()
                             .StartAsync()
                             .FirstAsync());
@@ -296,7 +296,7 @@ namespace YoutubeUploadSelenium
             {
                 webDriver.JsClick(await waiter
                     .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-uploads-dialog'] ytcp-button[id='done-button']")
-                    .Until().AnyElementsClickable()
+                    .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync());

@@ -6,7 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="TqkLibrary.SeleniumSupport" Version="1.0.0-build20230720150939" />
+		<PackageReference Include="TqkLibrary.SeleniumSupport" Version="1.0.0-build20240616130145" />
 	</ItemGroup>
 
 	<Import Project="..\YoutubeUploadSelenium\YoutubeUploadSelenium.projitems" Label="Shared" />
