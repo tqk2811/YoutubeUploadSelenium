@@ -13,6 +13,8 @@ using YoutubeUploadSelenium.Enums;
 using YoutubeUploadSelenium.Interfaces;
 using YoutubeUploadSelenium.Exceptions;
 using System.Text.RegularExpressions;
+using Nito.AsyncEx;
+using System.Windows;
 namespace YoutubeUploadSelenium
 {
     internal static class Extensions
@@ -57,7 +59,7 @@ namespace YoutubeUploadSelenium
                     .FirstAsync();
                 ele.JsClick();
                 ele.Clear();
-                ele.SendKeys(videoUploadInfo.Title);
+                await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Title, cancellationToken);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -71,9 +73,9 @@ namespace YoutubeUploadSelenium
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync();
-                ele.JsClick(); 
+                ele.JsClick();
                 ele.Clear();
-                ele.SendKeys(videoUploadInfo.Description);
+                await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Description, cancellationToken);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -147,13 +149,14 @@ namespace YoutubeUploadSelenium
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync().JsClickAsync();
-                await waiter
+                var ele = await waiter
                     .WaitUntilElements("ytcp-form-input-container[id='tags-container'] input[id='text-input']")
                     .Until().ElementsExists()
                     .WithThrow()
                     .StartAsync()
-                    .FirstAsync()
-                    .SendKeysAsync(videoUploadInfo.Tags);
+                    .FirstAsync();
+
+                await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Tags, cancellationToken);
             }
 
             //IsMakeForKid
@@ -300,7 +303,7 @@ namespace YoutubeUploadSelenium
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync().JsClickAsync();
-            }            
+            }
 
             await Task.Delay(2000, cancellationToken);
             videoUploadHandle.WriteLog($"Upload Hoàn tất");
@@ -349,6 +352,23 @@ namespace YoutubeUploadSelenium
             eles = webDriver.FindElements("ytcp-uploads-dialog[has-error]");
             if (eles.Count > 0)
                 throw new Exception($"{webDriver.FindElements("ytcp-uploads-dialog[has-error] .error-short").FirstOrDefault()?.Text}");
+        }
+
+        static readonly AsyncLock _lock_clipboard = new AsyncLock();
+        static async Task SendTextAsync(this IWebElement webElement, ISendTextMode sendTextMode, string text, CancellationToken cancellationToken = default)
+        {
+            if (sendTextMode.UsePasteForSpecialCharacter && sendTextMode.SynchronizationContextForClipboard is not null)
+            {
+                using var l = await _lock_clipboard.LockAsync(cancellationToken);
+                await sendTextMode.SynchronizationContextForClipboard.PostAsync(() => Clipboard.SetText(text));
+                await Task.Delay(100, cancellationToken);
+                webElement.SendKeys(Keys.Control + "v");
+                await Task.Delay(100, cancellationToken);
+            }
+            else
+            {
+                webElement.SendKeys(text);
+            }
         }
     }
 }

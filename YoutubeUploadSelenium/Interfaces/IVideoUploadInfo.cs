@@ -4,7 +4,7 @@ using System;
 
 namespace YoutubeUploadSelenium.Interfaces
 {
-    internal interface IVideoUploadInfo
+    internal interface IVideoUploadInfo : ISendTextMode
     {
         string? Description { get; }
         bool IsDraft { get; }

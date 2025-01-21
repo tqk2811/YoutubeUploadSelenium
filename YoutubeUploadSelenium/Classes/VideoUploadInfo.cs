@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using YoutubeUploadSelenium.Enums;
 using YoutubeUploadSelenium.Interfaces;
 
@@ -15,7 +16,7 @@ namespace YoutubeUploadSelenium.Classes
             this.VideoPath = videoPath;
         }
         public DateTime? Schedule { get; set; }
-        public string VideoPath { get; set; }
+        public string VideoPath { get; }
         public string? ThumbPath { get; set; }
 
         public VideoPrivacyStatus VideoPrivacyStatus { get; set; } = VideoPrivacyStatus.UNLISTED;
@@ -33,5 +34,8 @@ namespace YoutubeUploadSelenium.Classes
         /// </summary>
         public bool Premiere { get; set; } = false;
         public List<string>? PlayList { get; set; } = new List<string>();
+
+        public bool UsePasteForSpecialCharacter { get; set; }
+        public SynchronizationContext? SynchronizationContextForClipboard { get; set; }
     }
 }
