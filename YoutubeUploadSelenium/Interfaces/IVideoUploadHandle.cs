@@ -1,9 +1,14 @@
-﻿namespace YoutubeUploadSelenium.Interfaces
+﻿using System.Globalization;
+
+namespace YoutubeUploadSelenium.Interfaces
 {
     internal interface IVideoUploadHandle
     {
         void WriteLog(string log);
         void UploadProgressCallback(int percent);
-        string GetDateFormat();
+        string DateFormat { get; }
+        CultureInfo? DateCultureInfo { get; }
+        string TimeFormat { get; }
+        CultureInfo? TimeCultureInfo { get; }
     }
 }

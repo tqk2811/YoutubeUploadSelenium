@@ -15,6 +15,7 @@ using YoutubeUploadSelenium.Exceptions;
 using System.Text.RegularExpressions;
 using Nito.AsyncEx;
 using System.Windows;
+using System.Globalization;
 namespace YoutubeUploadSelenium
 {
     internal static class Extensions
@@ -238,7 +239,7 @@ namespace YoutubeUploadSelenium
                         .FirstAsync();
                     ele.JsClick();
                     ele.Clear();
-                    string day = videoUploadInfo.Schedule.Value.ToString(videoUploadHandle.GetDateFormat());
+                    string day = videoUploadInfo.Schedule.Value.ToString(videoUploadHandle.DateFormat, videoUploadHandle.DateCultureInfo);
                     ele.SendKeys(day + "\r\n");
                     videoUploadHandle.WriteLog($"Set SCHEDULE: Day:{day}");
 
@@ -248,7 +249,7 @@ namespace YoutubeUploadSelenium
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync();
-                    string time = videoUploadInfo.Schedule.Value.ToString("HH:mm");
+                    string time = videoUploadInfo.Schedule.Value.ToString(videoUploadHandle.TimeFormat, videoUploadHandle.TimeCultureInfo);
                     ele.Click();
                     ele.Clear();
                     ele.SendKeys(time + "\r\n");
