@@ -90,7 +90,7 @@ namespace YoutubeUploadSelenium
                 else
                 {
                     await waiter
-                        .WaitUntilElements("div[id='still-picker'] input[id='file-loader']")
+                        .WaitUntilElements("ytcp-video-thumbnail-editor input[id='file-loader']")
                         .Until().ElementsExists()
                         .WithThrow()
                         .StartAsync()
@@ -243,7 +243,7 @@ namespace YoutubeUploadSelenium
                     videoUploadHandle.WriteLog($"Set SCHEDULE: Day:{day}");
 
                     ele = await waiter
-                        .WaitUntilElements("ytcp-form-input-container#time-of-day-container tp-yt-paper-input.ytcp-datetime-picker iron-input>input")
+                        .WaitUntilElements("ytcp-form-input-container#time-of-day-container tp-yt-paper-input.ytcp-datetime-picker input")
                         .Until().Any().Clickable()
                         .WithThrow()
                         .StartAsync()
