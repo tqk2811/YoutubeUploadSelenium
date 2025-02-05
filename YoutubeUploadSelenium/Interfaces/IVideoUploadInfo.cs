@@ -1,5 +1,4 @@
 ﻿using YoutubeUploadSelenium.Enums;
-using System.Collections.Generic;
 using System;
 
 namespace YoutubeUploadSelenium.Interfaces
@@ -9,8 +8,8 @@ namespace YoutubeUploadSelenium.Interfaces
         string? Description { get; }
         bool IsDraft { get; }
         bool IsMakeForKid { get; }
-        List<string>? PlayListCreateIfNot { get; }
         bool Premiere { get; }
+        IPlayListInfo? PlayList { get; }
         DateTime? Schedule { get; }
         string? Tags { get; }
         string? ThumbPath { get; }

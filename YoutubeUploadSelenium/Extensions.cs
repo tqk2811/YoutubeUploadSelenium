@@ -103,10 +103,7 @@ namespace YoutubeUploadSelenium
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (
-                videoUploadHandle.IsEnablePlayListHandle ||
-                (videoUploadInfo.PlayListCreateIfNot != null && videoUploadInfo.PlayListCreateIfNot.Count > 0)
-                )
+            if (videoUploadInfo.PlayList is not null)
             {
                 await waiter
                     .WaitUntilElements("ytcp-text-dropdown-trigger.ytcp-video-metadata-playlists")
@@ -127,59 +124,56 @@ namespace YoutubeUploadSelenium
                 {
                     string PlayListName = ele.Text.Trim();
                     availablePlayList.Add(PlayListName);
-                    if (videoUploadHandle.IsEnablePlayListHandle)
+                    if (await videoUploadInfo.PlayList.PlayListHandleAsync(PlayListName, cancellationToken))
                     {
-                        if (await videoUploadHandle.PlayListHandleAsync(PlayListName))
-                        {
-                            videoUploadHandle.WriteLog($"Set playlist {PlayListName}");
-                            var ele2 = ele.FindElements(By.CssSelector("ytcp-checkbox-lit")).FirstOrDefault();
-                            if (ele2 != null)
-                                ele2.JsClick();
-                        }
+                        videoUploadHandle.WriteLog($"Set playlist {PlayListName}");
+                        var ele2 = ele.FindElements(By.CssSelector("ytcp-checkbox-lit")).FirstOrDefault();
+                        if (ele2 != null)
+                            ele2.JsClick();
                     }
                 }
-                if (videoUploadInfo.PlayListCreateIfNot is not null && videoUploadInfo.PlayListCreateIfNot.Any())
-                {
-                    foreach (var item in videoUploadInfo.PlayListCreateIfNot)
-                    {
-                        if (!availablePlayList.Contains(item))
-                        {
-                            //create
-                            await waiter
-                                .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-button.new-playlist-button")
-                                .Until().ElementsExists()
-                                .WithThrow()
-                                .StartAsync().FirstAsync()
-                                .JsClickAsync();
-                            await waiter
-                                .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-text-menu.ytcp-playlist-dialog tp-yt-paper-item[test-id='new_playlist']")
-                                .Until().ElementsExists()
-                                .WithThrow()
-                                .StartAsync().FirstAsync()
-                                .JsClickAsync();
+                IEnumerable<string> playlistCreate = await videoUploadInfo.PlayList.GetPlayListCreateAsync(cancellationToken);
 
-                            await waiter
-                                .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST'] ytcp-social-suggestions-textbox#title-textarea")
-                                .Until().ElementsExists()
-                                .WithThrow()
-                                .StartAsync().FirstAsync()
-                                .JsClickAsync()
-                                .DelayAsync(500, cancellationToken)
-                                .SendKeysAsync(item);
-                            await waiter
-                                 .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST'] ytcp-button#create-button")
-                                 .Until().ElementsExists()
-                                 .WithThrow()
-                                 .StartAsync().FirstAsync()
-                                 .JsClickAsync();
-                            await waiter
-                                .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST']")
-                                .Until(x => x.All(y => y.JsIsHidden()))
-                                .WithThrow()
-                                .StartAsync();//wait it hidden
-                            await Task.Delay(100, cancellationToken);
-                        }
-                    }
+                foreach (var item in playlistCreate)
+                {
+                    //create
+                    await waiter
+                        .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-button.new-playlist-button")
+                        .Until().Any().Visible()
+                        .WithThrow()
+                        .StartAsync().FirstAsync()
+                        .JsClickAsync();
+                    await Task.Delay(100, cancellationToken);
+                    await waiter
+                        .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-text-menu.ytcp-playlist-dialog tp-yt-paper-item[test-id='new_playlist']")
+                        .Until().Any().Visible()
+                        .WithThrow()
+                        .StartAsync().FirstAsync()
+                        .JsClickAsync();
+                    await Task.Delay(100, cancellationToken);
+
+                    await waiter
+                        .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST'] ytcp-social-suggestions-textbox#title-textarea")
+                        .Until().Any().Visible()
+                        .WithThrow()
+                        .StartAsync().FirstAsync()
+                        .JsClickAsync()
+                        .DelayAsync(500, cancellationToken)
+                        .SendKeysAsync(item);
+                    await Task.Delay(100, cancellationToken);
+                    await waiter
+                         .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST'] ytcp-button#create-button")
+                         .Until().Any().Visible()
+                         .WithThrow()
+                         .StartAsync().FirstAsync()
+                         .JsClickAsync();
+                    await Task.Delay(100, cancellationToken);
+                    await waiter
+                        .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST']")
+                        .Until(x => x.All(y => y.JsIsHidden()))
+                        .WithThrow()
+                        .StartAsync();//wait it hidden
+                    await Task.Delay(100, cancellationToken);
                 }
 
                 await waiter
@@ -422,7 +416,7 @@ namespace YoutubeUploadSelenium
         }
         static async Task<T> DelayAsync<T>(this Task<T> task, int delay, CancellationToken cancellationToken = default)
         {
-            T result = await task; 
+            T result = await task;
             await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             return result;
         }
