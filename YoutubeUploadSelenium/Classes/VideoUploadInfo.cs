@@ -33,7 +33,7 @@ namespace YoutubeUploadSelenium.Classes
         /// Công chiếu, <see cref="VideoPrivacyStatus.PUBLIC"/> only
         /// </summary>
         public bool Premiere { get; set; } = false;
-        public List<string>? PlayList { get; set; } = new List<string>();
+        public List<string>? PlayListCreateIfNot { get; set; } = new List<string>();
 
         public bool UsePasteForSpecialCharacter { get; set; }
         public SynchronizationContext? SynchronizationContextForClipboard { get; set; }

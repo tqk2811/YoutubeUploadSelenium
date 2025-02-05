@@ -53,7 +53,7 @@ namespace YoutubeUploadSelenium
                 if (videoUploadInfo.Title.Length > 100) throw new Exception("Tiêu đề dài hơn 100 ký tự");
                 videoUploadHandle.WriteLog($"Set title {videoUploadInfo.Title}");
                 var ele = await waiter
-                    .WaitUntilElements("ytcp-social-suggestions-textbox[id='title-textarea'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div[id='textbox']")
+                    .WaitUntilElements("ytcp-social-suggestions-textbox[id='title-textarea'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div#textbox")
                     .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
@@ -69,7 +69,7 @@ namespace YoutubeUploadSelenium
             {
                 videoUploadHandle.WriteLog($"Set description {videoUploadInfo.Description}");
                 var ele = await waiter
-                    .WaitUntilElements("div[id='description-container'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div[id='textbox']")
+                    .WaitUntilElements("div#description-container :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div#textbox")
                     .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
@@ -103,38 +103,87 @@ namespace YoutubeUploadSelenium
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (videoUploadInfo.PlayList != null && videoUploadInfo.PlayList.Count > 0)
+            if (
+                videoUploadHandle.IsEnablePlayListHandle ||
+                (videoUploadInfo.PlayListCreateIfNot != null && videoUploadInfo.PlayListCreateIfNot.Count > 0)
+                )
             {
                 await waiter
-                    .WaitUntilElements("ytcp-text-dropdown-trigger[class*='ytcp-video-metadata-playlists']")
+                    .WaitUntilElements("ytcp-text-dropdown-trigger.ytcp-video-metadata-playlists")
                     .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync().JsClickAsync();
                 var eles = await waiter
-                    .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-playlist-dialog'] ytcp-checkbox-group[id='playlists-list'] ytcp-ve[class*='ytcp-checkbox-group']")
+                    .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-checkbox-group#playlists-list")
                     .Until().ElementsExists()
                     .WithThrow()
                     .StartAsync();
-                eles = await waiter
-                    .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-playlist-dialog'] ytcp-checkbox-group[id='playlists-list'] ytcp-ve[class*='ytcp-checkbox-group']")
-                    .Until().ElementsExists()
-                    .WithThrow()
-                    .StartAsync();
+                await Task.Delay(100, cancellationToken);
+                eles = webDriver
+                    .FindElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-checkbox-group#playlists-list ytcp-ve.ytcp-checkbox-group");
+                List<string> availablePlayList = new();
                 foreach (var ele in eles)
                 {
                     string PlayListName = ele.Text.Trim();
-                    if (videoUploadInfo.PlayList.Any(x => x.Equals(PlayListName)))
+                    availablePlayList.Add(PlayListName);
+                    if (videoUploadHandle.IsEnablePlayListHandle)
                     {
-                        videoUploadHandle.WriteLog($"Set playlist {PlayListName}");
-                        var ele2 = ele.FindElements(By.CssSelector("ytcp-checkbox-lit")).FirstOrDefault();
-                        if (ele2 != null)
-                            ele2.JsClick();
+                        if (await videoUploadHandle.PlayListHandleAsync(PlayListName))
+                        {
+                            videoUploadHandle.WriteLog($"Set playlist {PlayListName}");
+                            var ele2 = ele.FindElements(By.CssSelector("ytcp-checkbox-lit")).FirstOrDefault();
+                            if (ele2 != null)
+                                ele2.JsClick();
+                        }
+                    }
+                }
+                if (videoUploadInfo.PlayListCreateIfNot is not null && videoUploadInfo.PlayListCreateIfNot.Any())
+                {
+                    foreach (var item in videoUploadInfo.PlayListCreateIfNot)
+                    {
+                        if (!availablePlayList.Contains(item))
+                        {
+                            //create
+                            await waiter
+                                .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-button.new-playlist-button")
+                                .Until().ElementsExists()
+                                .WithThrow()
+                                .StartAsync().FirstAsync()
+                                .JsClickAsync();
+                            await waiter
+                                .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-text-menu.ytcp-playlist-dialog tp-yt-paper-item[test-id='new_playlist']")
+                                .Until().ElementsExists()
+                                .WithThrow()
+                                .StartAsync().FirstAsync()
+                                .JsClickAsync();
+
+                            await waiter
+                                .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST'] ytcp-social-suggestions-textbox#title-textarea")
+                                .Until().ElementsExists()
+                                .WithThrow()
+                                .StartAsync().FirstAsync()
+                                .JsClickAsync()
+                                .DelayAsync(500, cancellationToken)
+                                .SendKeysAsync(item);
+                            await waiter
+                                 .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST'] ytcp-button#create-button")
+                                 .Until().ElementsExists()
+                                 .WithThrow()
+                                 .StartAsync().FirstAsync()
+                                 .JsClickAsync();
+                            await waiter
+                                .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST']")
+                                .Until(x => x.All(y => y.JsIsHidden()))
+                                .WithThrow()
+                                .StartAsync();//wait it hidden
+                            await Task.Delay(100, cancellationToken);
+                        }
                     }
                 }
 
                 await waiter
-                    .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-playlist-dialog'] ytcp-button[class*='done-button']")
+                    .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-button.done-button")
                     .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
@@ -145,13 +194,13 @@ namespace YoutubeUploadSelenium
             {
                 videoUploadHandle.WriteLog($"Set tags {videoUploadInfo.Tags}");
                 await waiter
-                    .WaitUntilElements("ytcp-button[id='toggle-button'][class*='ytcp-video-metadata-editor']")
+                    .WaitUntilElements("ytcp-button#toggle-button.ytcp-video-metadata-editor")
                     .Until().ElementsExists()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync().JsClickAsync();
                 var ele = await waiter
-                    .WaitUntilElements("ytcp-form-input-container[id='tags-container'] input[id='text-input']")
+                    .WaitUntilElements("ytcp-form-input-container#tags-container input#text-input")
                     .Until().ElementsExists()
                     .WithThrow()
                     .StartAsync()
@@ -370,6 +419,12 @@ namespace YoutubeUploadSelenium
             {
                 webElement.SendKeys(text);
             }
+        }
+        static async Task<T> DelayAsync<T>(this Task<T> task, int delay, CancellationToken cancellationToken = default)
+        {
+            T result = await task; 
+            await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            return result;
         }
     }
 }
