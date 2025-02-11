@@ -176,6 +176,7 @@ namespace YoutubeUploadSelenium
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync().JsClickAsync();
+                await Task.Delay(500, cancellationToken);
             }
 
             if (!string.IsNullOrWhiteSpace(videoUploadInfo.Tags))
