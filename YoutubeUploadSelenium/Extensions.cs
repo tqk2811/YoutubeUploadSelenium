@@ -155,14 +155,16 @@ namespace YoutubeUploadSelenium
                         .JsClickAsync();
                     await Task.Delay(100, cancellationToken);
 
-                    await waiter
+                    var ele = await waiter
                         .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST'] ytcp-social-suggestions-textbox#title-textarea")
                         .Until().Any().Visible()
                         .WithThrow()
                         .StartAsync().FirstAsync()
                         .JsClickAsync()
-                        .DelayAsync(500, cancellationToken)
-                        .SendKeysAsync(item);
+                        .DelayAsync(500, cancellationToken);
+                    await ele.SendTextAsync(videoUploadInfo, item, cancellationToken);
+
+
                     await Task.Delay(100, cancellationToken);
                     await waiter
                          .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST'] ytcp-button#create-button")
