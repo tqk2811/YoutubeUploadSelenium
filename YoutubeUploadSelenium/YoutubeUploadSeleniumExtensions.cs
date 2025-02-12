@@ -272,7 +272,7 @@ namespace YoutubeUploadSelenium
                     .FirstAsync().JsClickAsync();
 
                 //Schedule
-                if (videoUploadInfo.Schedule is not null && videoUploadInfo.Schedule < DateTime.Now.Add(MinScheduleTime))
+                if (videoUploadInfo.Schedule is not null && videoUploadInfo.Schedule >= DateTime.Now.Add(MinScheduleTime))
                 {
                     await waiter
                         .WaitUntilElements("div#second-container div.early-access-header>ytcp-icon-button:not(hidden)")
