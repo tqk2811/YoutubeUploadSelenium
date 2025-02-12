@@ -10,7 +10,7 @@ namespace YoutubeUploadSelenium.Interfaces
         bool IsMakeForKid { get; }
         bool Premiere { get; }
         IPlayListInfo? PlayList { get; }
-        DateTime? Schedule { get; }
+        DateTime? Schedule { get; set; }
         string? Tags { get; }
         string? ThumbPath { get; }
         string? Title { get; }

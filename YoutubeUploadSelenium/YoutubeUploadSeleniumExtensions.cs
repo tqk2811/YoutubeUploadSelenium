@@ -323,6 +323,7 @@ namespace YoutubeUploadSelenium
                 }
                 else
                 {
+                    videoUploadInfo.Schedule = null;
                     videoUploadHandle.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
                     await waiter
                         .WaitUntilElements(By.Name(videoUploadInfo.VideoPrivacyStatus.ToString()))
