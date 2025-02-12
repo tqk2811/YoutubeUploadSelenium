@@ -18,8 +18,9 @@ using System.Windows;
 using System.Globalization;
 namespace YoutubeUploadSelenium
 {
-    internal static class Extensions
+    internal static class YoutubeUploadSeleniumExtensions
     {
+        public static TimeSpan MinScheduleTime { get; set; } = TimeSpan.FromMinutes(2);
         public static async Task<string> UploadAsync(
             this WebDriver webDriver,
             IVideoUploadInfo videoUploadInfo,
@@ -172,7 +173,7 @@ namespace YoutubeUploadSelenium
                          .WithThrow()
                          .StartAsync().FirstAsync()
                          .JsClickAsync();
-                    await Task.Delay(100, cancellationToken); 
+                    await Task.Delay(100, cancellationToken);
                     await waiter
                         .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST']")
                         .UntilNotExist().Any().Visible()
@@ -255,6 +256,11 @@ namespace YoutubeUploadSelenium
                 UrlResult = ele_.Text;
             }
 
+            //wait upload done
+            await task_waitUploadDone;
+
+            videoUploadHandle.WriteLog($"Video url: {UrlResult}");
+
             if (!videoUploadInfo.IsDraft)
             {
                 //open tab REVIEW
@@ -266,11 +272,8 @@ namespace YoutubeUploadSelenium
                     .FirstAsync().JsClickAsync();
 
                 //Schedule
-                if (videoUploadInfo.Schedule is not null)
+                if (videoUploadInfo.Schedule is not null && videoUploadInfo.Schedule < DateTime.Now.Add(MinScheduleTime))
                 {
-                    if (videoUploadInfo.Schedule < DateTime.Now.AddMinutes(15))
-                        throw new InvalidOperationException($"Invalid Schedule Time");
-
                     await waiter
                         .WaitUntilElements("div#second-container div.early-access-header>ytcp-icon-button:not(hidden)")
                         .Until().All().Clickable()
@@ -339,23 +342,20 @@ namespace YoutubeUploadSelenium
                             .FirstAsync().JsClickAsync();
                     }
                 }
-            }
 
-            //wait upload done
-            await task_waitUploadDone;
 
-            videoUploadHandle.WriteLog($"Video url: {UrlResult}");
-
-            await Task.Delay(2000, cancellationToken);
-
-            if (!videoUploadInfo.IsDraft)
-            {
                 await waiter
                     .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-uploads-dialog'] ytcp-button[id='done-button']")
                     .Until().Any().Clickable()
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync().JsClickAsync();
+
+                await waiter
+                    .WaitUntilElements("tp-yt-paper-dialog[class*='ytcp-uploads-dialog'] ytcp-button[id='done-button']")
+                    .UntilNotExist().Any().Clickable()
+                    .WithTimeout(5000)
+                    .StartAsync();
             }
 
             await Task.Delay(2000, cancellationToken);
