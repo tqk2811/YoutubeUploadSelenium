@@ -117,8 +117,11 @@ namespace YoutubeUploadSelenium
                     .WithThrow()
                     .StartAsync();
                 await Task.Delay(100, cancellationToken);
-                eles = webDriver
-                    .FindElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-checkbox-group#playlists-list ytcp-ve.ytcp-checkbox-group");
+                eles = await waiter
+                    .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-checkbox-group#playlists-list ytcp-ve.ytcp-checkbox-group")
+                    .Until().ElementsExists()
+                    .WithTimeout(videoUploadHandle.TimeoutWaitLoadPlayList)
+                    .StartAsync();
                 List<string> availablePlayList = new();
                 foreach (var ele in eles)
                 {

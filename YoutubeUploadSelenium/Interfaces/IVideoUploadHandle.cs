@@ -5,6 +5,7 @@ namespace YoutubeUploadSelenium.Interfaces
 {
     internal interface IVideoUploadHandle
     {
+        int TimeoutWaitLoadPlayList { get; }
         void WriteLog(string log);
         void UploadProgressCallback(int percent);
         string DateFormat { get; }
