@@ -172,7 +172,12 @@ namespace YoutubeUploadSelenium
                          .WithThrow()
                          .StartAsync().FirstAsync()
                          .JsClickAsync();
-                    await Task.Delay(100, cancellationToken);
+                    await Task.Delay(100, cancellationToken); 
+                    await waiter
+                        .WaitUntilElements("ytcp-playlist-creation-dialog[dialog-type='CREATE_PLAYLIST']")
+                        .UntilNotExist().Any().Visible()
+                        .WithTimeout(2000)
+                        .StartAsync();//wait it hidden
                 }
 
                 await waiter
@@ -181,7 +186,11 @@ namespace YoutubeUploadSelenium
                     .WithThrow()
                     .StartAsync()
                     .FirstAsync().JsClickAsync();
-                await Task.Delay(500, cancellationToken);
+                await waiter
+                    .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-button.new-playlist-button")
+                    .UntilNotExist().Any().Visible()
+                    .WithTimeout(2000)
+                    .StartAsync();//wait it hidden
             }
 
             if (!string.IsNullOrWhiteSpace(videoUploadInfo.Tags))
