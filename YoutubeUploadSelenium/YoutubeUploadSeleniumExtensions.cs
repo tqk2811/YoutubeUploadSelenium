@@ -49,23 +49,6 @@ namespace YoutubeUploadSelenium
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!string.IsNullOrEmpty(videoUploadInfo.Title))
-            {
-                if (videoUploadInfo.Title.Length > 100) throw new Exception("Tiêu đề dài hơn 100 ký tự");
-                videoUploadHandle.WriteLog($"Set title {videoUploadInfo.Title}");
-                var ele = await waiter
-                    .WaitUntilElements("ytcp-social-suggestions-textbox[id='title-textarea'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div#textbox")
-                    .Until().Any().Clickable()
-                    .WithThrow()
-                    .StartAsync()
-                    .FirstAsync();
-                ele.JsClick();
-                ele.Clear();
-                await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Title, cancellationToken);
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
             if (!string.IsNullOrEmpty(videoUploadInfo.Description))
             {
                 videoUploadHandle.WriteLog($"Set description {videoUploadInfo.Description}");
@@ -194,6 +177,8 @@ namespace YoutubeUploadSelenium
                     .StartAsync();//wait it hidden
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (!string.IsNullOrWhiteSpace(videoUploadInfo.Tags))
             {
                 videoUploadHandle.WriteLog($"Set tags {videoUploadInfo.Tags}");
@@ -212,6 +197,8 @@ namespace YoutubeUploadSelenium
 
                 await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Tags, cancellationToken);
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             //IsMakeForKid
             {
@@ -233,6 +220,25 @@ namespace YoutubeUploadSelenium
                         .StartAsync()
                         .FirstAsync().JsClickAsync();
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!string.IsNullOrEmpty(videoUploadInfo.Title))
+            {
+                if (videoUploadInfo.Title.Length > 100) throw new Exception("Tiêu đề dài hơn 100 ký tự");
+                videoUploadHandle.WriteLog($"Set title {videoUploadInfo.Title}");
+                var ele = await waiter
+                    .WaitUntilElements("ytcp-social-suggestions-textbox[id='title-textarea'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div#textbox")
+                    .Until().Any().Clickable()
+                    .WithThrow()
+                    .StartAsync()
+                    .FirstAsync();
+                ele.JsClick();
+                ele.Clear();
+                await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Title, cancellationToken);
+            }
+
+
 
             //get url result
             var ele_ = await waiter
