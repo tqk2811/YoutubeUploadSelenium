@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace YoutubeUploadSelenium.Interfaces
 {
-    internal interface IPlayListInfo
+    internal interface IPlayListHandle
     {
         Task<bool> PlayListHandleAsync(string name, CancellationToken cancellationToken = default);
         Task<IEnumerable<string>> GetPlayListCreateAsync(CancellationToken cancellationToken = default);

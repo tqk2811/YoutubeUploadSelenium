@@ -3,13 +3,12 @@ using System;
 
 namespace YoutubeUploadSelenium.Interfaces
 {
-    internal interface IVideoUploadInfo : IVideoUploadHandle
+    internal interface IVideoUploadData
     {
         string? Description { get; }
         bool IsDraft { get; }
         bool IsMakeForKid { get; }
         bool Premiere { get; }
-        IPlayListInfo? PlayList { get; }
         DateTime? Schedule { get; set; }
         string? Tags { get; }
         string? ThumbPath { get; }

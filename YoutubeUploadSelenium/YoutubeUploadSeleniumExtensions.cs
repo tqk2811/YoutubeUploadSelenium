@@ -21,17 +21,17 @@ namespace YoutubeUploadSelenium
         public static TimeSpan MinScheduleTime { get; set; } = TimeSpan.FromMinutes(2);
         public static async Task<string> UploadAsync(
             this WebDriver webDriver,
-            IVideoUploadInfo videoUploadInfo,
+            IVideoUpload videoUpload,
             CancellationToken cancellationToken = default)
         {
-            if (videoUploadInfo is null) throw new ArgumentNullException(nameof(videoUploadInfo));
+            if (videoUpload is null) throw new ArgumentNullException(nameof(videoUpload));
 
             var waiter = new WaitHelper(webDriver, cancellationToken);//throw if webDriver null
             waiter.Do(() => webDriver.Check());
 
             webDriver.Navigate().GoToUrl("https://www.youtube.com/upload");
 
-            videoUploadInfo.WriteLog($"Upload {videoUploadInfo.VideoPath}");
+            videoUpload.VideoUploadHandle.WriteLog($"Upload {videoUpload.VideoUploadData.VideoPath}");
             await waiter
                 .WaitUntilElements(By.Name("Filedata"))
                 .Until().ElementsExists()
@@ -39,15 +39,15 @@ namespace YoutubeUploadSelenium
                 .WithTimeout(20000)
                 .StartAsync()
                 .FirstAsync()
-                .SendKeysAsync(videoUploadInfo.VideoPath);
+                .SendKeysAsync(videoUpload.VideoUploadData.VideoPath);
 
-            Task task_waitUploadDone = webDriver.ReadProgressAsync(videoUploadInfo, cancellationToken);
+            Task task_waitUploadDone = webDriver.ReadProgressAsync(videoUpload.VideoUploadHandle, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!string.IsNullOrEmpty(videoUploadInfo.Description))
+            if (!string.IsNullOrEmpty(videoUpload.VideoUploadData.Description))
             {
-                videoUploadInfo.WriteLog($"Set description {videoUploadInfo.Description}");
+                videoUpload.VideoUploadHandle.WriteLog($"Set description {videoUpload.VideoUploadData.Description}");
                 var ele = await waiter
                     .WaitUntilElements("div#description-container :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div#textbox")
                     .Until().Any().Clickable()
@@ -56,17 +56,17 @@ namespace YoutubeUploadSelenium
                     .FirstAsync();
                 ele.JsClick();
                 ele.Clear();
-                await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Description, cancellationToken);
+                await ele.SendTextAsync(videoUpload.VideoUploadHandle, videoUpload.VideoUploadData.Description, cancellationToken);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (File.Exists(videoUploadInfo.ThumbPath))
+            if (File.Exists(videoUpload.VideoUploadData.ThumbPath))
             {
-                videoUploadInfo.WriteLog($"Set Thumb Image {videoUploadInfo.ThumbPath}");
+                videoUpload.VideoUploadHandle.WriteLog($"Set Thumb Image {videoUpload.VideoUploadData.ThumbPath}");
                 if (webDriver.FindElements(By.CssSelector("ytcp-thumbnails-compact-editor-uploader[feature-disabled]")).Count > 0)
                 {
-                    videoUploadInfo.WriteLog($"Thumbnails feature-disabled on this account");
+                    videoUpload.VideoUploadHandle.WriteLog($"Thumbnails feature-disabled on this account");
                 }
                 else
                 {
@@ -76,14 +76,14 @@ namespace YoutubeUploadSelenium
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync()
-                        .SendKeysAsync(videoUploadInfo.ThumbPath);
+                        .SendKeysAsync(videoUpload.VideoUploadData.ThumbPath);
                     await Task.Delay(3000, cancellationToken);
                 }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (videoUploadInfo.PlayList is not null)
+            if (videoUpload.VideoUploadHandle.PlayListHandle is not null)
             {
                 await waiter
                     .WaitUntilElements("ytcp-text-dropdown-trigger.ytcp-video-metadata-playlists")
@@ -100,22 +100,22 @@ namespace YoutubeUploadSelenium
                 eles = await waiter
                     .WaitUntilElements("tp-yt-paper-dialog.ytcp-playlist-dialog ytcp-checkbox-group#playlists-list ytcp-ve.ytcp-checkbox-group")
                     .Until().ElementsExists()
-                    .WithTimeout(videoUploadInfo.TimeoutWaitLoadPlayList)
+                    .WithTimeout(videoUpload.VideoUploadHandle.TimeoutWaitLoadPlayList)
                     .StartAsync();
                 List<string> availablePlayList = new();
                 foreach (var ele in eles)
                 {
                     string PlayListName = ele.Text.Trim();
                     availablePlayList.Add(PlayListName);
-                    if (await videoUploadInfo.PlayList.PlayListHandleAsync(PlayListName, cancellationToken))
+                    if (await videoUpload.VideoUploadHandle.PlayListHandle.PlayListHandleAsync(PlayListName, cancellationToken))
                     {
-                        videoUploadInfo.WriteLog($"Set playlist {PlayListName}");
+                        videoUpload.VideoUploadHandle.WriteLog($"Set playlist {PlayListName}");
                         var ele2 = ele.FindElements(By.CssSelector("ytcp-checkbox-lit")).FirstOrDefault();
                         if (ele2 != null)
                             ele2.JsClick();
                     }
                 }
-                IEnumerable<string> playlistCreate = await videoUploadInfo.PlayList.GetPlayListCreateAsync(cancellationToken);
+                IEnumerable<string> playlistCreate = await videoUpload.VideoUploadHandle.PlayListHandle.GetPlayListCreateAsync(cancellationToken);
 
                 foreach (var item in playlistCreate)
                 {
@@ -142,7 +142,7 @@ namespace YoutubeUploadSelenium
                         .StartAsync().FirstAsync()
                         .JsClickAsync()
                         .DelayAsync(500, cancellationToken);
-                    await ele.SendTextAsync(videoUploadInfo, item, cancellationToken);
+                    await ele.SendTextAsync(videoUpload.VideoUploadHandle, item, cancellationToken);
 
 
                     await Task.Delay(100, cancellationToken);
@@ -175,9 +175,9 @@ namespace YoutubeUploadSelenium
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!string.IsNullOrWhiteSpace(videoUploadInfo.Tags))
+            if (!string.IsNullOrWhiteSpace(videoUpload.VideoUploadData.Tags))
             {
-                videoUploadInfo.WriteLog($"Set tags {videoUploadInfo.Tags}");
+                videoUpload.VideoUploadHandle.WriteLog($"Set tags {videoUpload.VideoUploadData.Tags}");
                 await waiter
                     .WaitUntilElements("ytcp-button#toggle-button.ytcp-video-metadata-editor")
                     .Until().ElementsExists()
@@ -191,17 +191,17 @@ namespace YoutubeUploadSelenium
                     .StartAsync()
                     .FirstAsync();
 
-                await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Tags, cancellationToken);
+                await ele.SendTextAsync(videoUpload.VideoUploadHandle, videoUpload.VideoUploadData.Tags, cancellationToken);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
             //IsMakeForKid
             {
-                videoUploadInfo.WriteLog($"Set KIDS: {videoUploadInfo.IsMakeForKid}");
+                videoUpload.VideoUploadHandle.WriteLog($"Set KIDS: {videoUpload.VideoUploadData.IsMakeForKid}");
                 //old ver MADE_FOR_KIDS
                 //new ver VIDEO_MADE_FOR_KIDS_MFK
-                if (videoUploadInfo.IsMakeForKid)
+                if (videoUpload.VideoUploadData.IsMakeForKid)
                     await waiter
                         .WaitUntilElements("tp-yt-paper-radio-button:is([name='MADE_FOR_KIDS'],[name='VIDEO_MADE_FOR_KIDS_MFK'])")
                         .Until().All().Clickable()
@@ -219,10 +219,10 @@ namespace YoutubeUploadSelenium
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!string.IsNullOrEmpty(videoUploadInfo.Title))
+            if (!string.IsNullOrEmpty(videoUpload.VideoUploadData.Title))
             {
-                if (videoUploadInfo.Title.Length > 100) throw new Exception("Tiêu đề dài hơn 100 ký tự");
-                videoUploadInfo.WriteLog($"Set title {videoUploadInfo.Title}");
+                if (videoUpload.VideoUploadData.Title.Length > 100) throw new Exception("Tiêu đề dài hơn 100 ký tự");
+                videoUpload.VideoUploadHandle.WriteLog($"Set title {videoUpload.VideoUploadData.Title}");
                 var ele = await waiter
                     .WaitUntilElements("ytcp-social-suggestions-textbox[id='title-textarea'] :is(ytcp-social-suggestion-input,ytcp-mention-input)[id='input'] div#textbox")
                     .Until().Any().Clickable()
@@ -231,9 +231,8 @@ namespace YoutubeUploadSelenium
                     .FirstAsync();
                 ele.JsClick();
                 ele.Clear();
-                await ele.SendTextAsync(videoUploadInfo, videoUploadInfo.Title, cancellationToken);
+                await ele.SendTextAsync(videoUpload.VideoUploadHandle, videoUpload.VideoUploadData.Title, cancellationToken);
             }
-
 
 
             //get url result
@@ -261,9 +260,9 @@ namespace YoutubeUploadSelenium
             //wait upload done
             await task_waitUploadDone;
 
-            videoUploadInfo.WriteLog($"Video url: {UrlResult}");
+            videoUpload.VideoUploadHandle.WriteLog($"Video url: {UrlResult}");
 
-            if (!videoUploadInfo.IsDraft)
+            if (!videoUpload.VideoUploadData.IsDraft)
             {
                 //open tab REVIEW
                 await waiter
@@ -274,7 +273,7 @@ namespace YoutubeUploadSelenium
                     .FirstAsync().JsClickAsync();
 
                 //Schedule
-                if (videoUploadInfo.Schedule is not null && videoUploadInfo.Schedule >= DateTime.Now.Add(MinScheduleTime))
+                if (videoUpload.VideoUploadData.Schedule.HasValue && videoUpload.VideoUploadData.Schedule.Value >= DateTime.Now.Add(MinScheduleTime))
                 {
                     await waiter
                         .WaitUntilElements("div#second-container div.early-access-header>ytcp-icon-button:not(hidden)")
@@ -296,9 +295,9 @@ namespace YoutubeUploadSelenium
                         .FirstAsync();
                     ele.JsClick();
                     ele.Clear();
-                    string day = videoUploadInfo.GetDateFormat(videoUploadInfo.Schedule.Value);
+                    string day = videoUpload.VideoUploadHandle.GetDateFormat(videoUpload.VideoUploadData.Schedule.Value);
                     ele.SendKeys(day + "\r\n");
-                    videoUploadInfo.WriteLog($"Set SCHEDULE: Day:{day}");
+                    videoUpload.VideoUploadHandle.WriteLog($"Set SCHEDULE: Day:{day}");
 
                     ele = await waiter
                         .WaitUntilElements("ytcp-form-input-container#time-of-day-container tp-yt-paper-input.ytcp-datetime-picker input")
@@ -306,15 +305,15 @@ namespace YoutubeUploadSelenium
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync();
-                    string time = videoUploadInfo.GetTimeFormat(videoUploadInfo.Schedule.Value);
+                    string time = videoUpload.VideoUploadHandle.GetTimeFormat(videoUpload.VideoUploadData.Schedule.Value);
                     ele.Click();
                     ele.Clear();
                     ele.SendKeys(time + "\r\n");
-                    videoUploadInfo.WriteLog($"Set SCHEDULE: Time:{time}");
+                    videoUpload.VideoUploadHandle.WriteLog($"Set SCHEDULE: Time:{time}");
 
-                    if (videoUploadInfo.Premiere)
+                    if (videoUpload.VideoUploadData.Premiere)
                     {
-                        videoUploadInfo.WriteLog($"Set schedule-premiere");
+                        videoUpload.VideoUploadHandle.WriteLog($"Set schedule-premiere");
                         await waiter
                             .WaitUntilElements("#schedule-type-checkbox")
                             .Until().All().Clickable()
@@ -325,18 +324,18 @@ namespace YoutubeUploadSelenium
                 }
                 else
                 {
-                    videoUploadInfo.Schedule = null;
-                    videoUploadInfo.WriteLog($"Set Privacy: {videoUploadInfo.VideoPrivacyStatus}");
+                    videoUpload.VideoUploadData.Schedule = null;
+                    videoUpload.VideoUploadHandle.WriteLog($"Set Privacy: {videoUpload.VideoUploadData.VideoPrivacyStatus}");
                     await waiter
-                        .WaitUntilElements(By.Name(videoUploadInfo.VideoPrivacyStatus.ToString()))
+                        .WaitUntilElements(By.Name(videoUpload.VideoUploadData.VideoPrivacyStatus.ToString()))
                         .Until().All().Clickable()
                         .WithThrow()
                         .StartAsync()
                         .FirstAsync().JsClickAsync();
 
-                    if (videoUploadInfo.VideoPrivacyStatus == VideoPrivacyStatus.PUBLIC && videoUploadInfo.Premiere)
+                    if (videoUpload.VideoUploadData.VideoPrivacyStatus == VideoPrivacyStatus.PUBLIC && videoUpload.VideoUploadData.Premiere)
                     {
-                        videoUploadInfo.WriteLog($"Set premiere");
+                        videoUpload.VideoUploadHandle.WriteLog($"Set premiere");
                         await waiter
                             .WaitUntilElements("#enable-premiere-checkbox")
                             .Until().All().Clickable()
@@ -362,7 +361,7 @@ namespace YoutubeUploadSelenium
             }
 
             await Task.Delay(2000, cancellationToken);
-            videoUploadInfo.WriteLog($"Upload Hoàn tất");
+            videoUpload.VideoUploadHandle.WriteLog($"Upload Hoàn tất");
 
             return UrlResult;
         }

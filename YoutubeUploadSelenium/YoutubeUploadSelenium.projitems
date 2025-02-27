@@ -11,9 +11,10 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Enums\VideoPrivacyStatus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Exceptions\YtcpAuthConfirmationDialogException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IVideoUploadData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)YoutubeUploadSeleniumExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlayListInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlayListHandle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IVideoUploadHandle.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IVideoUploadInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IVideoUpload.cs" />
   </ItemGroup>
 </Project>

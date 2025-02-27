@@ -12,5 +12,7 @@ namespace YoutubeUploadSelenium.Interfaces
         string GetTimeFormat(DateTime dateTime);
         bool UsePasteForSpecialCharacter { get; }
         Task PasteClipboardAsync(string text);
+
+        IPlayListHandle? PlayListHandle { get; }
     }
 }
