@@ -13,7 +13,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Exceptions\YtcpAuthConfirmationDialogException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)YoutubeUploadSeleniumExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IPlayListInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ISendTextMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IVideoUploadHandle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IVideoUploadInfo.cs" />
   </ItemGroup>

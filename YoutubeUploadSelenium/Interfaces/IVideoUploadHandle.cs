@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace YoutubeUploadSelenium.Interfaces
@@ -8,9 +9,9 @@ namespace YoutubeUploadSelenium.Interfaces
         int TimeoutWaitLoadPlayList { get; }
         void WriteLog(string log);
         void UploadProgressCallback(int percent);
-        string DateFormat { get; }
-        CultureInfo? DateCultureInfo { get; }
-        string TimeFormat { get; }
-        CultureInfo? TimeCultureInfo { get; }
+        string GetDateFormat(DateTime dateTime);
+        string GetTimeFormat(DateTime dateTime);
+        bool UsePasteForSpecialCharacter { get; }
+        Task PasteClipboardAsync(string text);
     }
 }
