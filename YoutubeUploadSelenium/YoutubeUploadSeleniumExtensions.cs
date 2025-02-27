@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TqkLibrary.SeleniumSupport;
@@ -14,8 +13,7 @@ using YoutubeUploadSelenium.Interfaces;
 using YoutubeUploadSelenium.Exceptions;
 using System.Text.RegularExpressions;
 using Nito.AsyncEx;
-using System.Windows;
-using System.Globalization;
+
 namespace YoutubeUploadSelenium
 {
     internal static class YoutubeUploadSeleniumExtensions
