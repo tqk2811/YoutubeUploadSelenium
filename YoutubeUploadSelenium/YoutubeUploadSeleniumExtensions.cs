@@ -20,7 +20,7 @@ namespace YoutubeUploadSelenium
     {
         public static TimeSpan MinScheduleTime { get; set; } = TimeSpan.FromMinutes(2);
         public static async Task<string> UploadAsync(
-            this WebDriver webDriver,
+            this IWebDriver webDriver,
             IVideoUpload videoUpload,
             CancellationToken cancellationToken = default
             )
@@ -368,7 +368,7 @@ namespace YoutubeUploadSelenium
         }
 
         private static async Task ReadProgressAsync(
-            this WebDriver webDriver,
+            this IWebDriver webDriver,
             IVideoUploadHandle videoUploadHandle,
             CancellationToken cancellationToken = default)
         {
@@ -399,7 +399,7 @@ namespace YoutubeUploadSelenium
             webDriver.Check();
         }
 
-        static void Check(this WebDriver webDriver)
+        static void Check(this IWebDriver webDriver)
         {
             var eles = webDriver.FindElements("ytcp-auth-confirmation-dialog");
             if (eles.Count > 0)
