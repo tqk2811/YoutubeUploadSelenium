@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace YoutubeUploadSelenium.Interfaces
 {
-    internal interface IVideoUploadHandle
+    public interface IVideoUploadHandle
     {
         int TimeoutWaitLoadPlayList { get; }
         void WriteLog(string log);

@@ -1,6 +1,6 @@
 ﻿namespace YoutubeUploadSelenium.Enums
 {
-    internal enum VideoPrivacyStatus
+    public enum VideoPrivacyStatus
     {
         PRIVATE,
         UNLISTED,

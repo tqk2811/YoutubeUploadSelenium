@@ -16,13 +16,14 @@ using Nito.AsyncEx;
 
 namespace YoutubeUploadSelenium
 {
-    internal static class YoutubeUploadSeleniumExtensions
+    public static class YoutubeUploadSeleniumExtensions
     {
         public static TimeSpan MinScheduleTime { get; set; } = TimeSpan.FromMinutes(2);
         public static async Task<string> UploadAsync(
             this WebDriver webDriver,
             IVideoUpload videoUpload,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default
+            )
         {
             if (videoUpload is null) throw new ArgumentNullException(nameof(videoUpload));
 

@@ -1,6 +1,6 @@
 ﻿namespace YoutubeUploadSelenium.Interfaces
 {
-    internal interface IVideoUpload
+    public interface IVideoUpload
     {
         IVideoUploadData VideoUploadData { get; }
         IVideoUploadHandle VideoUploadHandle { get; }
