@@ -1,18 +1,10 @@
 ﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using TqkLibrary.SeleniumSupport;
 using TqkLibrary.SeleniumSupport.Helper.WaitHeplers;
 using YoutubeUploadSelenium.Enums;
 using YoutubeUploadSelenium.Interfaces;
 using YoutubeUploadSelenium.Exceptions;
 using System.Text.RegularExpressions;
-using Nito.AsyncEx;
 
 namespace YoutubeUploadSelenium
 {
@@ -410,13 +402,11 @@ namespace YoutubeUploadSelenium
                 throw new Exception($"{webDriver.FindElements("ytcp-uploads-dialog[has-error] .error-short").FirstOrDefault()?.Text}");
         }
 
-        static readonly AsyncLock _lock_clipboard = new AsyncLock();
         static async Task SendTextAsync(this IWebElement webElement, IVideoUploadHandle videoUploadHandle, string text, CancellationToken cancellationToken = default)
         {
             if (videoUploadHandle.UsePasteForSpecialCharacter)
             {
-                using var l = await _lock_clipboard.LockAsync(cancellationToken);
-                await videoUploadHandle.PasteClipboardAsync(text);
+                using var l = await videoUploadHandle.PasteClipboardAsync(text, cancellationToken);
                 await Task.Delay(100, cancellationToken);
                 webElement.SendKeys(Keys.Control + "v");
                 await Task.Delay(100, cancellationToken);

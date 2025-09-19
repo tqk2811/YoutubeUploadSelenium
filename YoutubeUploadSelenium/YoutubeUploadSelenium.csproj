@@ -8,7 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
 		<PackageReference Include="TqkLibrary.SeleniumSupport" Version="1.0.0-build20250830160500" />
 	</ItemGroup>
 
