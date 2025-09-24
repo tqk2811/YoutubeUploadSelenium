@@ -255,7 +255,11 @@ namespace YoutubeUploadSelenium
 
             videoUpload.VideoUploadHandle.WriteLog($"Video url: {UrlResult}");
 
-            if (!videoUpload.VideoUploadData.IsDraft)
+            if (videoUpload.VideoUploadData.IsDraft)
+            {
+                await Task.Delay(10000, cancellationToken);//wait saved
+            }
+            else
             {
                 //open tab REVIEW
                 await waiter
@@ -351,9 +355,9 @@ namespace YoutubeUploadSelenium
                     .UntilNotExist().Any().Clickable()
                     .WithTimeout(5000)
                     .StartAsync();
+                await Task.Delay(2000, cancellationToken);
             }
 
-            await Task.Delay(2000, cancellationToken);
             videoUpload.VideoUploadHandle.WriteLog($"Upload Hoàn tất");
 
             return UrlResult;
